@@ -39,6 +39,17 @@ def makeFuseCompound(name):
         _ViewProviderFuseCompound(obj.ViewObject)
     return obj
 
+
+def recursiveFuse(shapes):
+    if len(shapes) > 3:
+        a = recursiveFuse(shapes[:int(len(shapes)/2)])
+        b = recursiveFuse(shapes[int(len(shapes)/2):])
+        return recursiveFuse([a, b])
+    elif len(shapes) > 1:
+        return shapes[0].fuse(shapes[1:]).removeSplitter()
+    else:
+        return shapes[0]
+
 class _FuseCompound:
     "The FuseCompound object"
     def __init__(self,obj):
@@ -51,13 +62,9 @@ class _FuseCompound:
         
 
     def execute(self,obj):
-        rst = None
         shps = screen(obj.Base).Shape.childShapes()
         if len(shps) > 1:
-            rst = shps[0].multiFuse(shps[1:])
-            if obj.Refine:
-                rst = rst.removeSplitter()
-            obj.Shape = rst
+            obj.Shape = recursiveFuse(shps)
         else:
             obj.Shape = shps[0]
         return
